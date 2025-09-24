@@ -1,19 +1,25 @@
 import mongoose , {Schema} from "mongoose";
-import User from "./user_model.js";
 
 const reviewSchema = new Schema({
     userId : {
        type : mongoose.Types.ObjectId,
-       ref : User,
+       ref : 'User',
+    },
+    providerId : {
+        type : mongoose.Types.ObjectId,
+        ref : 'User',
     },
     review :{
         type:String ,
+        required : true,
     },
     rating :{
         type :Number,
+        required: true,
+
     }
 },{timestamps:true})
 
 
-const Review = new mongoose.model("Review" , reviewSchema);
+const Review = mongoose.model("Review" , reviewSchema);
 export default Review

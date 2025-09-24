@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  mongo-db:
+    image: mongo:latest
+    ports:
+      -27017:27017
+    volumes:
+      -mongo-data:/data/db
+    environment:
+      -MONGO_INITDB_ROOT_USERNAME:satyammongouser
+      -MONGO_INITDB_ROOT_PASSWORD:mongo@satyam123
+  
+  Backend:
+    build : ./Backend
+    ports:
+     -8000:8000
+    environment:
+     - MONGO_URI : mongodb://satyammongouser:mono@satyam123@mongo-db:27017/skillmarketplace?authSource=admin
+     - JWT_SECRET : jhkdjsajlaskdpasldhuscascjaskcnaskkscks
+     - NODE_ENV : development
+    depends_on:
+      - mongo-db
+  
+
+  frontend :
+    build: ./frontend
+    ports:
+      - 3000:3000
+    depends_on:
+      - Backend
+
+volumes :
+  mongo-data

@@ -23,7 +23,7 @@ const userSchema = new Schema({
     providerStatus:{
         type:String,
         enum :['not-provider' , 'provider', 'pending','rejected'],
-        default :"pending",
+        default :"not-provider",
     }
 },{timestamps:true})
 
