@@ -1,6 +1,7 @@
 
 import User from '../models/user_model.js'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken';
 
 
 const registerUser = async(req , res)=>{
@@ -21,13 +22,125 @@ const registerUser = async(req , res)=>{
         })
         await user.save();
         console.log(user);
-        if(!user){
-           return res.status(400).json({message:"User not registered"});
-        }
-         return res.status(201).json({message:"User Registration Successfull", data: user});
+        const payload ={username:user , _id:user._id , providerStatus:user.providerStatus , email:user.email}
+        const token = await jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            {expiresIn:"3d"}
+        )
+         return res.status(201).json({message:"User Registration Successfull", data: {
+            _id:user._id,
+            username:user.username,
+            email : user.email,
+            token,
+         }});
     } catch (error) {
         console.log(error.message)
-        return res.status(400).json({message:"User Registration Error", error : error.message})
+        return res.status(500).json({message:"Internal Server Error", error : error.message})
     }
 
+}
+
+const loginUser = async(req,res)=>{
+    console.log(req.body);
+    const {email , password} = req.body;
+    try {
+        if(!email || !password){
+            return res.status(400).json({message:"Invalid Credentials"});
+        }
+        const user = await User.findOne(email);
+        if(user){
+            if(await bcrypt.compare(password , user.password)){
+                const payload = {username:user.username , providerStatus : user.providerStatus , userId: user._id};
+                const token = jwt.sign(
+                    payload, 
+                    process.env.JWT_SECRET,
+                    {expiresIn :"3d"}
+                )
+                return res.status(200).json({message:"User loggedIn Successfully", data:{
+                    _id:user._id,
+                    username : user.username,
+                    email:user.email,
+                    token,
+                }});
+            }
+        }else{
+            return res.status(404).json({message:"User Not Found !"})
+        }
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message : "Internal Server Error" , data:error.message})
+    }
+}
+
+const getCurrentUser =  async(req,res)=>{
+    const {userId} = req.user;
+    try {
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(404).json({message:"user Not Found"})
+        }else{
+            return res.status(200).json({message:"User Fetched Successfully" , data :{
+                _id:user._id,
+                username : user.username,
+                email :user.email,
+                providerStatus : user.providerStatus,
+                role:user.role
+            }})
+        }
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message:"Internal Server Error", data:error.message});
+    }
+}
+
+const updateProfile = async(req,res)=>{
+    console.log(req.body);
+    const {newusername , email } = req.body;
+    const {userId} = req.user;
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId , {
+            username:newusername,
+            email:email
+         },{new:true}).select(-password);
+         if(!updatedUser){
+            return res.status(404).json({message:"User Not Found"})
+         }
+        return res.status(200).json({message:"User Updation Successfull " , data:{updatedUser}})
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).json({message:"Internal Server Error" , data:error.message});
+    }
+}
+
+const resetPassword  = async(req,res) =>{
+    console.log(req,body);
+    const{OldPassword , password} = req.body;
+    const {userId}= req.user;
+    try {
+        const  user = await User.findById(userId);
+        if(await bcrypt.compare(OldPassword , user.password)){
+            user.password = await bcrypt.hash(password , 10);
+            await user.save();
+            return res.status(200).json({message:"Password Updation Successfull" , data:{
+            username : user.username,
+            email : user.email,
+        }})
+        }else{
+            return res.status(400).json({message:"Previous Password Does not match"})
+        }
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message:"Internal Server Error" ,  data:error.message})
+    }
+}
+
+
+
+export {
+    registerUser,
+    loginUser,
+    getCurrentUser,
+    updateProfile,
+    resetPassword
 }
