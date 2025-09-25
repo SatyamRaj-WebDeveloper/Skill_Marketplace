@@ -2,7 +2,8 @@
 import User from '../models/user_model.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
-
+import sendMail from '../utilities/sendEmail.js'
+import applicationTemplate from '../utilities/applicationTemplate.js';
 
 const registerUser = async(req , res)=>{
     console.log(req.body)
@@ -135,6 +136,42 @@ const resetPassword  = async(req,res) =>{
     }
 }
 
+const providerRequest = async(req,res) => {
+    console.log(req.body);
+    const {userId} = req.user;
+    const {message} =req.body;
+    try {
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(404).json({message:"User Not Found"})
+        }
+        if(user.providerStatus == 'pending'){
+            return res.status(400).json({message:"Request Already Under Process" , data:{
+                username:user.username,
+                email : user.email,
+            }})
+        }else{
+        user.providerStatus = 'pending';
+        await user.save();
+        }
+        const dashboardLink = process.env.DASHBOARD_LINK
+        const htmlContent = applicationTemplate({user , message , dashboardLink});
+   await sendMail({
+    to : process.env.ADMIN_EMAIL,
+    subject : `Provider Application from ${user.username}`,
+    html : htmlContent,
+    replyTo : user.email
+   })
+   return res.status(200).json({
+            message: 'Your application has been submitted and is pending review.'
+   });     
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message :"Internal Server Error", data:error.message});
+    }
+
+}
+
 
 
 export {
@@ -142,5 +179,6 @@ export {
     loginUser,
     getCurrentUser,
     updateProfile,
-    resetPassword
+    resetPassword,
+    providerRequest
 }
