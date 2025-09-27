@@ -14,7 +14,7 @@ const bookingSchema  = new Schema({
    },
    status :{
     type : String,
-    enum : ['pending' , 'cancelled', 'confirmed','completed'],
+    enum : ['pending','cancelled', 'confirmed','completed'],
     default : 'pending',
     required : true,
    },
@@ -22,16 +22,21 @@ const bookingSchema  = new Schema({
     type : Date,
     required : true,
    },
-   serviceDetails:{
-    name :{
-        type : String,
-        required : true,
+    service: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Service', 
+        required: true
     },
-    price :{
-        type:Number,
-        required : true,
+    serviceDetails: {
+        name: {
+            type: String,
+            required: true,
+        },
+        price: {
+            type: Number,
+            required: true,
+        }
     }
-   }
 },{timestamps:true})
 
 const Booking = mongoose.model("Booking" , bookingSchema);

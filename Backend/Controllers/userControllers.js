@@ -5,6 +5,10 @@ import jwt from 'jsonwebtoken';
 import sendMail from '../utilities/sendEmail.js'
 import applicationTemplate from '../utilities/applicationTemplate.js';
 import Review from '../models/reviews_model.js'
+import provider from '../models/providerProfile.js'
+import Booking from '../models/bookings_model.js';
+import service from '../models/serviceModel.js';
+
 
 const registerUser = async(req , res)=>{
     console.log(req.body)
@@ -208,6 +212,53 @@ const reviewForProvider = async(req,res)=>{
     }
 }
 
+const getProviderById = async(req,res)=>{
+    const {providerId} = req.params;
+    try {
+        const Provider = await provider.findById({user:providerId}).select('-password');
+        if(!Provider){
+            return res.status(404).json({message:"No Provider found for the ID"});
+        }
+        return res.status(200).json({message:"Provider Fetched Successfully" , data:Provider})
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message :"Internal Server Error", data:error.message});
+    }
+}
+
+const createBooking = async(req, res)=>{
+    const {providerId , serviceId} = req.params;
+    const userId = req.user.id;
+    const {bookingTime }= req.body;
+    try {
+        if (!bookingTime || !serviceId) {
+        return res.status(400).json({ message: "Service and booking time are required." });
+        }    
+         const Service = await service.findById(serviceId);
+        if (!Service) {
+            return res.status(404).json({ message: "Service not found." });
+        }
+        if (Service.provider.toString() !== providerId) {
+            return res.status(400).json({ message: "This service is not offered by this provider." });
+        }
+        const booking = new Booking({
+            userId,
+            providerId,
+            bookingTime: new Date(bookingTime),
+            service: service._id,    
+            serviceDetails: {      
+                name: service.name,
+                price: service.price
+            }
+        });
+        await booking.save();
+        return res.status(201).json({message:"Order Placed" , data:booking})
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message :"Internal Server Error", data:error.message});
+    }
+}
+
 export {
     registerUser,
     loginUser,
@@ -216,5 +267,6 @@ export {
     resetPassword,
     providerRequest,
     createReview,
-    reviewForProvider
+    reviewForProvider,
+    getProviderById,
 }
