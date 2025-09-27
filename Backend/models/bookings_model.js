@@ -9,7 +9,7 @@ const bookingSchema  = new Schema({
    },
    providerId : {
     type : mongoose.Types.ObjectId,
-    ref : 'User',
+    ref : 'provider',
     required : true,
    },
    status :{
@@ -18,7 +18,7 @@ const bookingSchema  = new Schema({
     default : 'pending',
     required : true,
    },
-   BookingTime :{
+   bookingTime :{
     type : Date,
     required : true,
    },
@@ -32,7 +32,7 @@ const bookingSchema  = new Schema({
         required : true,
     }
    }
-},{timestamps})
+},{timestamps:true})
 
 const Booking = mongoose.model("Booking" , bookingSchema);
 export default Booking

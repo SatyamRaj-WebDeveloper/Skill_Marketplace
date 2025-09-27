@@ -17,13 +17,17 @@ const userSchema = new Schema({
     },
     role :{
         type:String,
-        enum :['user', 'provider'],
+        enum :['user', 'provider' ,'admin'],
         default : 'user',
     },
     providerStatus:{
         type:String,
         enum :['not-provider' , 'provider', 'pending','rejected'],
         default :"not-provider",
+    },
+    isActive:{
+        type:Boolean,
+        default:true,
     }
 },{timestamps:true})
 

@@ -52,7 +52,7 @@ const loginUser = async(req,res)=>{
         const user = await User.findOne(email);
         if(user){
             if(await bcrypt.compare(password , user.password)){
-                const payload = {username:user.username , providerStatus : user.providerStatus , userId: user._id};
+                const payload = {userId: user._id};
                 const token = jwt.sign(
                     payload, 
                     process.env.JWT_SECRET,
@@ -62,6 +62,7 @@ const loginUser = async(req,res)=>{
                     _id:user._id,
                     username : user.username,
                     email:user.email,
+                    role:user.role,
                     token,
                 }});
             }
