@@ -4,6 +4,7 @@ import Review from "../models/reviews_model.js";
 import Booking from "../models/bookings_model.js";
 
 
+
 const updateProviderProfile = async(req,res)=>{
     console.log(req.body);
     const{bio, ServiceCategory, location , availability } = req.body ;
@@ -40,11 +41,6 @@ const updateProviderProfile = async(req,res)=>{
         console.log(error.message);
         return res.status(500).json({message:"Internal Server Error", error:error.message})
     }
-}
-
-
-const providerupdates = async(req,res)=>{
-
 }
 
 
@@ -119,9 +115,6 @@ const blockedDates = async(req,res)=>{
         if(!Provider){
             return res.status(400).json({message:"Provider Not Found"});
         }
-        // if(Provider.BlockedDates.includes(new Date(date))){
-        //     return res.status(200).json({message:"Date Already added "});
-        // }
         await Provider.updateOne({$addToSet:{BlockedDates : new Date(date)}});
         return res.status(200).json({ message: 'Date successfully blocked.' });
     } catch (error) {

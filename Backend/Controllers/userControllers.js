@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
 import sendMail from '../utilities/sendEmail.js'
 import applicationTemplate from '../utilities/applicationTemplate.js';
+import Review from '../models/reviews_model.js'
 
 const registerUser = async(req , res)=>{
     console.log(req.body)
@@ -173,7 +174,39 @@ const providerRequest = async(req,res) => {
 
 }
 
+const createReview = async(req,res)=>{
+    const userId = req.user.id;
+    const {providerId} = req.params;
+    const {review , rating} = req.body;
+    try {
+        const rev = new Review({
+            userId,
+            providerId,
+            review,
+            rating
+        })
+        await rev.save();
+        return res.status(201).json({message:"Review Created Successfully"});
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message :"Internal Server Error", data:error.message});
+    }
+}
 
+const reviewForProvider = async(req,res)=>{
+    const userId = req.user.id;
+    const {providerId} = req.params;
+    try {
+        const reviews = await Review.find({
+            userId,
+            providerId,
+        }).populate('user','username');
+        return res.status(200).json({message:"Reviews Fetched Successfully" , data: reviews});
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message :"Internal Server Error", data:error.message});
+    }
+}
 
 export {
     registerUser,
@@ -181,5 +214,7 @@ export {
     getCurrentUser,
     updateProfile,
     resetPassword,
-    providerRequest
+    providerRequest,
+    createReview,
+    reviewForProvider
 }

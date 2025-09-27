@@ -1,5 +1,6 @@
-import provider from '../models/providerProfile'
+import sendMail from '../utilities/sendEmail';
 import User from '../models/user_model';
+import { approvalTemplate } from '../utilities/approvalTemplate';
 
 const approveRequest = async(req,res)=>{
     const {providerID} = req.params;
@@ -14,6 +15,12 @@ const approveRequest = async(req,res)=>{
             user.providerStatus = 'provider'
             user.role = 'provider'
             await user.save();
+            const htmlContent = approvalTemplate({username:user.username})
+            await sendMail({
+                to : user.email,
+                subject : ` Welcome Aboard! You're Now a Provider on Skill Marketplace`,
+                html : htmlContent,
+            })
             return res.status(200).json({message:"User is now a Provider" , data:{
                 username:user.username,
                 providerStatus : user.providerStatus,
@@ -48,7 +55,6 @@ const cancelRequest = async(req,res) => {
 
 const getAllUsers = async(req , res)=>{
     try {
-
         const page = parseInt(req.query.page);
         const limit  = parseInt(req.query.limit);
         const skip = (page-1)*limit;
@@ -93,7 +99,22 @@ const suspendUser = async(req,res)=>{
         }
     } catch (error) {
         console.log(error.message);
-        return res.status(500).json({message:"Internal Server Error"});
+        return res.status(500).json({message:"Internal Server Error" , data:error.message});
+    }
+}
+
+const getReviewsforprovider = async(req,res)=>{
+    const {providerId} = req.params;
+    try {
+        const reviews = await Review.find({providerId : providerId})
+        .populate('user' , 'username  providerStatus');
+        if(!reviews){
+            return res.status(404).json({message:"No Reviews Found"});
+        }
+        return res.status(200).json({message:"Reviews fetched Successfully " , data:reviews});
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message:"Internal Server Error" , data:error.message});
     }
 }
 
@@ -102,4 +123,7 @@ const suspendUser = async(req,res)=>{
 export {
     approveRequest,
     cancelRequest,
+    getAllUsers,
+    suspendUser,
+    getReviewsforprovider,
 }
