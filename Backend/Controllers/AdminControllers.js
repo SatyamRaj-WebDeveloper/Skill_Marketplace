@@ -1,6 +1,7 @@
 import sendMail from '../utilities/sendEmail';
 import User from '../models/user_model';
 import { approvalTemplate } from '../utilities/approvalTemplate';
+import Review from '../models/reviews_model.js';
 
 const approveRequest = async(req,res)=>{
     const {providerID} = req.params;

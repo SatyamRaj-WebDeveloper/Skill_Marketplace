@@ -177,12 +177,12 @@ const providerRequest = async(req,res) => {
 const createReview = async(req,res)=>{
     const userId = req.user.id;
     const {providerId} = req.params;
-    const {review , rating} = req.body;
+    const {comment , rating} = req.body;
     try {
         const rev = new Review({
             userId,
             providerId,
-            review,
+            review:comment,
             rating
         })
         await rev.save();
