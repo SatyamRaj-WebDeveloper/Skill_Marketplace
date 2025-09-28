@@ -8,6 +8,7 @@ import Review from '../models/reviews_model.js'
 import provider from '../models/providerProfile.js'
 import Booking from '../models/bookings_model.js';
 import service from '../models/serviceModel.js';
+import { generateToken } from '../utilities/generateTokens.js';
 
 
 const registerUser = async(req , res)=>{
@@ -28,17 +29,12 @@ const registerUser = async(req , res)=>{
         })
         await user.save()
         console.log(user);
-        const payload ={id:user._id}
-        const token =jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            {expiresIn:"3d"}
-        )
+        const accessToken = generateToken(res,user._id);
          return res.status(201).json({message:"User Registration Successfull", data: {
             _id:user._id,
             username:user.username,
             email : user.email,
-            token,
+            accessToken,
          }});
     } catch (error) {
         console.log(error.message)
@@ -57,18 +53,13 @@ const loginUser = async(req,res)=>{
         const user = await User.findOne({email});
         if(user){
             if(await bcrypt.compare(password , user.password)){
-                const payload = {userId: user._id};
-                const token = jwt.sign(
-                    payload, 
-                    process.env.JWT_SECRET,
-                    {expiresIn :"3d"}
-                )
+                const accessToken = generateToken(res , user._id)
                 return res.status(200).json({message:"User loggedIn Successfully", data:{
                     _id:user._id,
                     username : user.username,
                     email:user.email,
                     role:user.role,
-                    token,
+                    accessToken,
                 }});
             }
         }else{
