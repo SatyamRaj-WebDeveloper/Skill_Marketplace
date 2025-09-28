@@ -7,7 +7,7 @@ const reviewSchema = new Schema({
     },
     providerId : {
         type : mongoose.Types.ObjectId,
-        ref : 'User',
+        ref : 'provider',
     },
     review :{
         type:String ,

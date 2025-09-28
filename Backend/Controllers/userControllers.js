@@ -26,10 +26,10 @@ const registerUser = async(req , res)=>{
             email,
             password : hashedpassword,
         })
-        await user.save();
+        await user.save()
         console.log(user);
-        const payload ={username:user , _id:user._id , providerStatus:user.providerStatus , email:user.email}
-        const token = await jwt.sign(
+        const payload ={id:user._id}
+        const token =jwt.sign(
             payload,
             process.env.JWT_SECRET,
             {expiresIn:"3d"}
@@ -54,7 +54,7 @@ const loginUser = async(req,res)=>{
         if(!email || !password){
             return res.status(400).json({message:"Invalid Credentials"});
         }
-        const user = await User.findOne(email);
+        const user = await User.findOne({email});
         if(user){
             if(await bcrypt.compare(password , user.password)){
                 const payload = {userId: user._id};
@@ -72,7 +72,7 @@ const loginUser = async(req,res)=>{
                 }});
             }
         }else{
-            return res.status(404).json({message:"User Not Found !"})
+            return res.status(404).json({ message: "Invalid credentials" })
         }
     } catch (error) {
         console.log(error.message);
@@ -81,7 +81,7 @@ const loginUser = async(req,res)=>{
 }
 
 const getCurrentUser =  async(req,res)=>{
-    const {userId} = req.user;
+    const userId = req.user.id;
     try {
         const user = await User.findById(userId);
         if(!user){
@@ -104,12 +104,12 @@ const getCurrentUser =  async(req,res)=>{
 const updateProfile = async(req,res)=>{
     console.log(req.body);
     const {newusername , email } = req.body;
-    const {userId} = req.user;
+    const userId = req.user.id;
     try {
         const updatedUser = await User.findByIdAndUpdate(userId , {
             username:newusername,
             email:email
-         },{new:true}).select(-password);
+         },{new:true}).select('-password');
          if(!updatedUser){
             return res.status(404).json({message:"User Not Found"})
          }
@@ -121,9 +121,9 @@ const updateProfile = async(req,res)=>{
 }
 
 const resetPassword  = async(req,res) =>{
-    console.log(req,body);
+    console.log(req.body);
     const{OldPassword , password} = req.body;
-    const {userId}= req.user;
+    const userId = req.user.id;
     try {
         const  user = await User.findById(userId);
         if(await bcrypt.compare(OldPassword , user.password)){
@@ -144,7 +144,7 @@ const resetPassword  = async(req,res) =>{
 
 const providerRequest = async(req,res) => {
     console.log(req.body);
-    const {userId} = req.user;
+   const userId = req.user.id;
     const {message} =req.body;
     try {
         const user = await User.findById(userId);
@@ -215,7 +215,7 @@ const reviewForProvider = async(req,res)=>{
 const getProviderById = async(req,res)=>{
     const {providerId} = req.params;
     try {
-        const Provider = await provider.findById({user:providerId}).select('-password');
+        const Provider = await provider.findOne({user:providerId}).select('-password');
         if(!Provider){
             return res.status(404).json({message:"No Provider found for the ID"});
         }
@@ -259,6 +259,25 @@ const createBooking = async(req, res)=>{
     }
 }
 
+const cancelBooking = async(req,res)=>{
+    const {bookingId} = req.params;
+    const userId = req.user.id;
+    try {
+        const order = await Booking.findOne({_id:bookingId , userId});
+        if(!order){
+            return res.status(404).json({message:"Booking not found or you are not authorized to cancel it."});
+        }
+        order.status = "cancelled";
+        await order.save();
+        return res.status(200).json({message:"Order Cancelled Succefully" , data:order});
+    } catch (error) {
+         console.log(error.message);
+        return res.status(500).json({message :"Internal Server Error", data:error.message});
+    }
+}
+
+
+
 export {
     registerUser,
     loginUser,
@@ -269,4 +288,6 @@ export {
     createReview,
     reviewForProvider,
     getProviderById,
+    createBooking,
+    cancelBooking,
 }

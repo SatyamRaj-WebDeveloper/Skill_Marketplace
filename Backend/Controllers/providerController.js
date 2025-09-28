@@ -7,7 +7,7 @@ import Booking from "../models/bookings_model.js";
 
 const updateProviderProfile = async(req,res)=>{
     console.log(req.body);
-    const{bio, ServiceCategory, location , availability } = req.body ;
+    const{bio, ServiceCategory, location , availability ,coordinates} = req.body ;
     try {
         const Provider = await provider.findOne({ user: req.user._id })
         if(!Provider){
@@ -123,10 +123,92 @@ const blockedDates = async(req,res)=>{
     }
 }
 
+const cancelBooking =  async(req, res)=>{
+    const {bookingId} = req.params;
+    const userId = req.user.id;
+    if(!bookingId || !userId){
+        return res.status(404).json({message:"Invalid Booking Id or UserId"});
+    }
+    try {
+        const Provider  = await provider.findOne({user:userId})
+        if(!Provider){
+            return res.status(404).json({message:"Provider Not Found"});
+        }
+        const order = await Booking.findOne({_id:bookingId , providerId:Provider._id});
+        if(!order){
+            return res.status(404).json({message:"Order Not found or you are not an Authorized Provider "});
+        }
+        order.status = 'cancelled';
+        await order.save();
+        return res.status(200).json({message:"order Cancelled Successfully" , data:order});
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message:"Internal Server Error"})
+    }
+}
+
+const confirmBooking = async(req , res)=>{
+    const {bookingId} = req.params;
+    const userId = req.user.id;
+    if(!bookingId || !userId){
+        return res.status(404).json({message:"Invalid Booking Id or UserId" });
+    }
+    try {
+        const Provider = await provider.findOne({user:userId});
+        if(!Provider){
+            return res.status(404).json({message:"No Provider Found"})
+        }
+        const order = await Booking.findOne({_id:bookingId , providerId : Provider._id});
+        if(!order){
+            return res.status(404).json({message:"Order Not found or you are not an Authorized Provider "});
+        }
+        if (order.status !== 'confirmed') {
+        return res.status(400).json({ message: `Cannot confirm a booking that is currently '${order.status}'.` });
+        }
+        order.status = 'confirmed';
+        await order.save();
+        return res.status(200).json({message:"Order Confirmed Successfully" , data:order})
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message:"Internal Server Error"})
+    }
+}
+
+const completeBooking  = async(req,res)=>{
+    const id = req.user.id;
+    const {bookingId} = req.params;
+    if(!id || !bookingId){
+        return res.status(404).json({message:"Invalid id or Booking Id"});
+    }
+    try {
+        const Provider = await provider.findOne({user:id}) ;
+        if(!Provider){
+            return res.status(404).json({message:"No Provider Found"});
+        }
+        const order = await Booking.findOne({_id:bookingId , providerId:Provider._id});
+        if(!order){
+            return res.status(404).json({message:"Order Not found or you are not an Authorized Provider "});
+        }
+        if (order.status !== 'confirmed') {
+        return res.status(400).json({ message: `Cannot complete a booking that is currently '${order.status}'.` });
+       }
+        order.status = "completed";
+        await order.save();
+        return res.status(200).json({message:"Order Completed", data:order});
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message:"Internal Server Error"})
+    }
+}
+
+
 export {
     updateProviderProfile,
     getMyReviews,
     getMyOrders,
     updateJobStatus,
     blockedDates,
+    cancelBooking,
+    confirmBooking,
+    completeBooking,
 }

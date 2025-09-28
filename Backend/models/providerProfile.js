@@ -11,14 +11,12 @@ const providerSchema = new Schema({
     },
     bio:{
         type: String,
-        required : true,
         maxLength : 500,
-        default  : undefined
+        default  : "Please Update"
     },
     serviceCategory:{
         type:String,
-        required:true,
-        default:undefined
+        default:"Please Update"
     },
     location:{
       type:{
