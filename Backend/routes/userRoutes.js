@@ -15,7 +15,7 @@ const router = Router();
 
 router.route('/register/user').post(registerUser);
 router.route('/login/user').post(loginUser);
-router.route('/getUser').post(verifyjwt , getCurrentUser);
+router.route('/getUser').get(verifyjwt , getCurrentUser);
 router.route('/updateProfile').put(verifyjwt , updateProfile);
 router.route('/resetpassword').put(verifyjwt , resetPassword);
 router.route('/request/provider').post(verifyjwt , providerRequest);

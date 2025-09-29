@@ -24,6 +24,10 @@ app.get('/' ,(req,res)=>{
     return res.send("health Check OK");
 })
 
+import userroutes from './routes/userRoutes.js'
+
+app.use('/api/v1' , userroutes);
+
 app.listen(PORT , ()=>{
     console.log(`Sample app is listening on PORT ${PORT}`);
 })

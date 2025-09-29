@@ -14,15 +14,8 @@ services:
     build : ./Backend
     ports:
      - 8000:8000
-    environment:
-     - MONGO_URI=mongodb://satyammongouser:mongo%40satyam123@mongo-db:27017/skillmarketplace?authSource=admin
-     - JWT_SECRET=jhkdjsajlaskdpasldhuscascjaskcnaskkscks
-     - NODE_ENV=development
-     - PORT=8000
-     - SEND_GRID_API_KEY=${SEND_GRID_API_KEY}
-     - ADMIN_EMAIL=satyam.fullstackdeveloper@gamil.com
-     - FROM=noreply@skillmarketplace.com
-     - DASHBOARD_LINK=http://localhost:3000
+    env_file:
+      - ./Backend/.env
     depends_on:
       - mongo-db
   
