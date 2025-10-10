@@ -7,7 +7,7 @@ import Booking from "../models/bookings_model.js";
 
 const updateProviderProfile = async(req,res)=>{
     console.log(req.body);
-    const{bio, ServiceCategory, location , availability ,coordinates} = req.body ;
+    const{bio, ServiceCategory, location , availability , phoneNumber} = req.body ;
     try {
         const Provider = await provider.findOne({ user: req.user._id })
         if(!Provider){
@@ -30,6 +30,7 @@ const updateProviderProfile = async(req,res)=>{
         }
         if(bio) Provider.bio = bio;
         if(ServiceCategory) Provider.serviceCategory = ServiceCategory;
+        if(phoneNumber) Provider.Phone = phoneNumber;
         if(availability) Provider.availability = JSON.parse(availability);
 
         if(req.file){

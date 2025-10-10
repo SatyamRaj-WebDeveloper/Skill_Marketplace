@@ -29,6 +29,10 @@ const providerSchema = new Schema({
         default :[0,0],
       }
     },
+    Phone :{
+      type:String,
+      required:true,
+    },
     availability:[{
      day:{
         type : String,

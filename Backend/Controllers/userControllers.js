@@ -9,6 +9,7 @@ import provider from '../models/providerProfile.js'
 import Booking from '../models/bookings_model.js';
 import service from '../models/serviceModel.js';
 import { generateToken } from '../utilities/generateTokens.js';
+import Conversation from '../models/conversation.model.js'
 
 
 const registerUser = async(req , res)=>{
@@ -267,6 +268,29 @@ const cancelBooking = async(req,res)=>{
     }
 }
 
+const findOrCreateAConversation = async(req, res) =>{
+    const {otheruserId} = req.params;
+    const currentuser = req.user.id;
+    try {
+        if(!otheruserId || !currentuser){
+            return res.status(404).json({message:"Error : User or Provider not found"});
+        }
+        let conversation = await Conversation.findOne({
+            participants : {$all :[otheruserId , currentuser]},
+        })
+        if(!conversation){
+            conversation = new Conversation({
+                participants : [otheruserId , currentuser]
+            })
+            await conversation.save();
+        }
+        return res.status(200).json({message:"Conversation established " , data:conversation});
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({message:"Internal Server Error ",data:error.message})
+    }
+}
+
 
 
 export {
@@ -281,4 +305,5 @@ export {
     getProviderById,
     createBooking,
     cancelBooking,
+    findOrCreateAConversation,
 }
