@@ -1,6 +1,5 @@
 import mongoose,{Schema} from 'mongoose'
 
-
 const bookingSchema  = new Schema({
    userId :{
     type: mongoose.Types.ObjectId,
@@ -14,9 +13,25 @@ const bookingSchema  = new Schema({
    },
    status :{
     type : String,
-    enum : ['pending','cancelled', 'confirmed','completed'],
+    enum : [
+        'pending',
+        'cancelled', 
+        'confirmed',
+        'completed',
+        'provider_complete',
+        'auto_complete',
+        'disputed',
+    ],
     default : 'pending',
     required : true,
+   },
+   paymentStatus:{
+      type:String,
+      enum :["Succeeded", "pending" , "failed"],
+      default :'pending',
+   },
+   paymentIntentId:{
+      type : String,
    },
    bookingTime :{
     type : Date,
