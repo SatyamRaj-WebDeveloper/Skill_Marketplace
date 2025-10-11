@@ -1,5 +1,5 @@
 import Router from 'express';
-import { verifyjwt } from '../middlewares/authMiddleware';
+import { verifyjwt } from '../middlewares/authMiddleware.js';
 import {isAdmin} from '../middlewares/isAdmin.js';
 import {
      approveRequest,

@@ -174,6 +174,8 @@ const createReview = async(req,res)=>{
     const userId = req.user.id;
     const {providerId} = req.params;
     const {comment , rating} = req.body;
+    console.log("comment : ", comment);
+    console.log("rating" , rating );
     try {
         const rev = new Review({
             userId,

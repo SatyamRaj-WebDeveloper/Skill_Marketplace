@@ -2,7 +2,7 @@ import mongoose , {Schema}  from 'mongoose';
 
 const convoSchema = new Schema({
    participants :[{
-    types : mongoose.Types.ObjectId,
+    type : mongoose.Types.ObjectId,
     ref: 'User',
     required : true
    }],

@@ -39,8 +39,10 @@ app.get('/' ,(req,res)=>{
 })
 
 import userroutes from './routes/userRoutes.js'
+import adminroutes from './routes/adminRoutes.js'
 
 app.use('/api/v1' , userroutes);
+app.use('/api/v1' , adminroutes);
 
 server.listen(PORT , ()=>{
     console.log(`Sample app is listening on PORT ${PORT}`);

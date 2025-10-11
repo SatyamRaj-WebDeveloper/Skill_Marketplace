@@ -34,7 +34,7 @@ const approvalTemplate = ({username})=>{
                             <p style="margin: 0; color: #888888; font-size: 12px;">
                                 You received this email because your provider application was approved.
                                 <br>
-                                &copy; 2025 ${Skill_Marketplace} All rights reserved.
+                                &copy; 2025 Skill Marketplace All rights reserved.
                             </p>
                         </td>
                     </tr>

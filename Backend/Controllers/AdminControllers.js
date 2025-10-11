@@ -1,14 +1,15 @@
-import sendMail from '../utilities/sendEmail';
-import User from '../models/user_model';
-import { approvalTemplate } from '../utilities/approvalTemplate';
+import sendMail from '../utilities/sendEmail.js';
+import User from '../models/user_model.js';
+import { approvalTemplate } from '../utilities/approvalTemplate.js';
 import Review from '../models/reviews_model.js';
 
 const approveRequest = async(req,res)=>{
-    const {providerID} = req.params;
+    const {providerId} = req.params;
+    console.log("USER:",providerId);
     try {
-          const user = await User.findById(providerID);
+          const user = await User.findById(providerId);
         if(!user){
-            return res.status(404).json({message:"Could Not Find Provider "});
+            return res.status(404).json({message:"Could Not Find User "});
         }
         if(user.role == 'provider' && user.providerStatus == 'provider' && user.role == 'provider'){
            return res.status(200).json({message:"Already a Provider"})
@@ -108,7 +109,7 @@ const getReviewsforprovider = async(req,res)=>{
     const {providerId} = req.params;
     try {
         const reviews = await Review.find({providerId : providerId})
-        .populate('user' , 'username  providerStatus');
+        .populate('userId' , 'username  providerStatus');
         if(!reviews){
             return res.status(404).json({message:"No Reviews Found"});
         }
