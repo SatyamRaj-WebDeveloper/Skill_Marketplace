@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import Message from './models/messageModel.js'; // Make sure to import your Message model
+import Message from './models/message.model.js'; // Make sure to import your Message model
 
 const initializeSocket = (io) => {
 
