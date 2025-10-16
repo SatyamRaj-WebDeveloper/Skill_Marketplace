@@ -13,7 +13,6 @@ import Conversation from '../models/conversation.model.js'
 
 
 const registerUser = async(req , res)=>{
-    console.log(req.body)
     const {username , email , password } = req.body;
     try {
         if(!username || !email || !password){

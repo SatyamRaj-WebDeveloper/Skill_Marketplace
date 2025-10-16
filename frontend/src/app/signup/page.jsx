@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { Mail, Lock, User } from 'lucide-react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 // Google Logo SVG Component
 const GoogleIcon = () => (
@@ -13,8 +15,22 @@ const GoogleIcon = () => (
     </svg>
 );
 
-
 const SignUpPage = () => {
+    const SubmitForm =async(e)=>{
+   e.preventDefault();
+   const formData = {
+    username : e.target[0].value,
+    email : e.target[1].value,
+    password : e.target[2].value
+   }
+   try{
+    await axios.post("http://localhost:8000/api/v1/register/user" , formData )
+    .then((res)=>{
+        console.log(res);
+    })
+    }catch{
+    console.log("Error frontend : User Registration")
+    }}
 
     return (
         <div className="bg-gray-900 min-h-screen flex items-center justify-center p-4">
@@ -35,7 +51,7 @@ const SignUpPage = () => {
                     <div className="flex-grow border-t border-gray-600"></div>
                 </div>
 
-                <form className="space-y-5">
+                <form className="space-y-5" onSubmit={SubmitForm}>
                     <div>
                         <label htmlFor="username" className="block text-sm font-medium text-gray-300">Username</label>
                         <div className="mt-1 relative">

@@ -1,7 +1,7 @@
 
 import { Roboto } from 'next/font/google';
 import './globals.css'
-import { Providers } from './providers';
+import { ToastContainer } from 'react-toastify';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -18,9 +18,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={roboto.className}>
-         <Providers>
           {children}
-        </Providers>
+          <ToastContainer/>
       </body>
     </html>
   );
