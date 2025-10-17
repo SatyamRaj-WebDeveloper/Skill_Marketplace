@@ -7,6 +7,17 @@ import Link from 'next/link';
 const SkillMarketplaceLandingPage = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [verifying ,setverifying] = useState(true);
+
+    useEffect(()=>{
+        const token = localStorage.getItem('accessToken');
+        if(token){
+            window.location.href = '/dashboard';
+            setverifying(false);
+        }else{
+            setverifying(false)
+        }
+    } , [])
 
     // Effect to set the initial theme from localStorage or default to dark
     useEffect(() => {
@@ -39,6 +50,13 @@ const SkillMarketplaceLandingPage = () => {
         { href: "#how-it-works", label: "How It Works" },
         { href: "#contact", label: "Contact" },
     ];
+     if (verifying) {
+        return (
+            <div className="bg-gray-900 min-h-screen flex items-center justify-center">
+                <p className="text-white text-lg">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -67,7 +85,7 @@ const SkillMarketplaceLandingPage = () => {
                                 <button onClick={toggleDarkMode} className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                                     {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
                                 </button>
-                                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium px-4 py-2 rounded-md transition-colors">Log In</a>
+                                <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium px-4 py-2 rounded-md transition-colors">Log In</Link>
                                 <Link href="/signup" className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-300 shadow-sm hover:shadow-md">
                                     Sign Up
                                 </Link>
@@ -94,7 +112,7 @@ const SkillMarketplaceLandingPage = () => {
                                         </a>
                                     ))}
                                     <div className="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4 flex flex-col space-y-4">
-                                         <a href="#" className="text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-800 hover:text-indigo-600 block px-4 py-3 rounded-md text-base font-medium">Log In</a>
+                                         <Link href="/login" className="text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-800 hover:text-indigo-600 block px-4 py-3 rounded-md text-base font-medium">Log In</Link>
                                         <Link href="/signup" className="bg-indigo-600 text-white px-5 py-3 rounded-lg font-semibold text-center hover:bg-indigo-700 transition-colors duration-300">
                                             Sign Up
                                         </Link>

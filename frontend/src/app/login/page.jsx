@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
-import { Mail, Lock, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+// import { useRouter } from 'next/navigation'; // Removed to fix compilation error
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { Mail, Lock } from 'lucide-react';
 
-// Google Logo SVG Component
+// Google Logo SVG Component (reusable)
 const GoogleIcon = () => (
     <svg className="w-5 h-5 mr-3" viewBox="0 0 48 48">
         <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
@@ -15,28 +15,61 @@ const GoogleIcon = () => (
     </svg>
 );
 
-const SignUpPage = () => {
+const LoginPage = () => {
 
-   const SubmitForm =async(e)=>{
-   e.preventDefault();
-    try{
-   const formData = {
-    username : e.target[0].value,
-    email : e.target[1].value,
-    password : e.target[2].value
-   }
-    const res = await axios.post("http://localhost:8000/api/v1/register/user" , formData )
-    console.log(res)
-    }catch{
-    console.log("Error frontend : User Registration")
-    }}
+
+    // const router = useRouter(); // Removed
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+    });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await axios.post("http://localhost:8000/api/v1/login/user", formData);
+            const { accessToken } = response.data.data;
+            console.log(accessToken);
+            if (accessToken) {
+                localStorage.setItem('accessToken', accessToken);
+                console.log("Login successful, token saved.");
+                // Replaced router.push with window.location.href for universal compatibility
+                window.location.href = '/dashboard'; 
+            } else {
+                setError("Login failed: No token received.");
+            }
+
+        } catch (err) {
+            console.error("Login error:", err);
+            const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+   
 
     return (
         <div className="bg-gray-900 min-h-screen flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-700">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white">Create an Account</h1>
-                    <p className="text-gray-400 mt-2">Join SkillMarket to find or offer services.</p>
+                    <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
+                    <p className="text-gray-400 mt-2">Log in to continue to SkillMarket.</p>
                 </div>
 
                 <button className="w-full flex items-center justify-center py-3 px-4 border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-gray-200 font-medium hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-colors">
@@ -49,25 +82,8 @@ const SignUpPage = () => {
                     <span className="flex-shrink mx-4 text-gray-500 font-medium">OR</span>
                     <div className="flex-grow border-t border-gray-600"></div>
                 </div>
-
-                <form className="space-y-5" onSubmit={SubmitForm}>
-                    <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-300">Username</label>
-                        <div className="mt-1 relative">
-                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <User className="h-5 w-5 text-gray-500" />
-                            </div>
-                            <input
-                                id="username"
-                                name="username"
-                                type="text"
-                                required
-                                className="appearance-none block w-full bg-gray-700 text-white pl-10 pr-3 py-2.5 border border-gray-600 rounded-lg shadow-sm placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                placeholder="johndoe"
-                            />
-                        </div>
-                    </div>
-
+                
+                <form className="space-y-5" onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email address</label>
                          <div className="mt-1 relative">
@@ -80,6 +96,8 @@ const SignUpPage = () => {
                                 type="email"
                                 autoComplete="email"
                                 required
+                                value={formData.email}
+                                onChange={handleChange}
                                 className="appearance-none block w-full bg-gray-700 text-white pl-10 pr-3 py-2.5 border border-gray-600 rounded-lg shadow-sm placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 placeholder="you@example.com"
                             />
@@ -98,26 +116,31 @@ const SignUpPage = () => {
                                 type="password"
                                 autoComplete="current-password"
                                 required
+                                value={formData.password}
+                                onChange={handleChange}
                                 className="appearance-none block w-full bg-gray-700 text-white pl-10 pr-3 py-2.5 border border-gray-600 rounded-lg shadow-sm placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 placeholder="••••••••"
                             />
                         </div>
                     </div>
+                    
+                    {error && <p className="text-sm text-red-400 text-center">{error}</p>}
 
                     <div>
                         <button
                             type="submit"
-                            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
+                            disabled={loading}
+                            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
                         >
-                            Sign Up
+                            {loading ? 'Logging In...' : 'Log In'}
                         </button>
                     </div>
                 </form>
 
                 <p className="mt-8 text-center text-sm text-gray-400">
-                    Already have an account?{' '}
-                    <a href="/login" className="font-medium text-indigo-400 hover:text-indigo-300">
-                        Log in
+                    Don't have an account?{' '}
+                    <a href="/signup" className="font-medium text-indigo-400 hover:text-indigo-300">
+                        Sign up
                     </a>
                 </p>
             </div>
@@ -125,5 +148,5 @@ const SignUpPage = () => {
     );
 };
 
-export default SignUpPage;
+export default LoginPage;
 
