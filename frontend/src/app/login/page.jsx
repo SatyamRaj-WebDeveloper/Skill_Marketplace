@@ -41,7 +41,7 @@ const LoginPage = () => {
         setError('');
 
         try {
-            const response = await axios.post("http://localhost:8000/api/v1/login/user", formData);
+            const response = await axios.post("http://backend:8000/api/v1/login/user", formData);
             const { accessToken } = response.data.data;
             console.log(accessToken);
             if (accessToken) {

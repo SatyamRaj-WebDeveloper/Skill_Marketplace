@@ -1,18 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, Star, LocateFixed, Home, Paintbrush, HeartPulse, Code, Crosshair, Briefcase } from 'lucide-react';
-import ProviderCard from '../components/ProviderCard.jsx';
-import FeaturedCarousel from '../components/FeaturedCarousel.jsx';
+import UserProfileSidebar from '../components/UserProfileSidebar';
+import ProviderCard from '../components/ProviderCard';
+import FeaturedCarousel from '../components/FeaturedCarousel';
+import { Search, MapPin, Home, Paintbrush, HeartPulse, Code, Crosshair, } from 'lucide-react';
+
 // --- MOCK DATA ---
-// In a real app, this would come from an API call
 const mockProviders = [
-    { id: 1, name: 'Eleanor Pena', service: 'Plumbing', rating: 4.9, location: 'New York, NY', img: 'https://placehold.co/100x100/6366f1/ffffff?text=EP', projects: 128, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=Plumbing+Project' },
-    { id: 2, name: 'Cody Fisher', service: 'Electrical', rating: 4.8, location: 'Brooklyn, NY', img: 'https://placehold.co/100x100/ec4899/ffffff?text=CF', projects: 94, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=Wiring+Setup' },
-    { id: 3, name: 'Jenny Wilson', service: 'Design', rating: 5.0, location: 'Remote', img: 'https://placehold.co/100x100/8b5cf6/ffffff?text=JW', projects: 215, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=UI/UX+Design' },
+    { id: 1, name: 'Eleanor Pena', service: 'Plumbing', rating: 4.9, location: 'New York, NY', img: 'https://placehold.co/100x100/6366f1/ffffff?text=EP', projects: 128, banner: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80' },
+    { id: 2, name: 'Cody Fisher', service: 'Electrical', rating: 4.8, location: 'Brooklyn, NY', img: 'https://placehold.co/100x100/ec4899/ffffff?text=CF', projects: 94, banner: 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80' },
+    { id: 3, name: 'Jenny Wilson', service: 'Design', rating: 5.0, location: 'Remote', img: 'https://placehold.co/100x100/8b5cf6/ffffff?text=JW', projects: 215, banner: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80' },
     { id: 4, name: 'Robert Fox', service: 'Painting', rating: 4.7, location: 'Queens, NY', img: 'https://placehold.co/100x100/f59e0b/ffffff?text=RF', projects: 76, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=Home+Painting' },
     { id: 5, name: 'Wade Warren', service: 'Music', rating: 4.9, location: 'Manhattan, NY', img: 'https://placehold.co/100x100/10b981/ffffff?text=WW', projects: 150, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=Guitar+Lessons' },
     { id: 6, name: 'Kristin Watson', service: 'Fitness', rating: 4.8, location: 'New York, NY', img: 'https://placehold.co/100x100/3b82f6/ffffff?text=KW', projects: 188, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=Personal+Training' },
+    { id: 7, name: 'Jacob Jones', service: 'Web Development', rating: 4.9, location: 'Remote', img: 'https://placehold.co/100x100/f43f5e/ffffff?text=JJ', projects: 112, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=React+Code' },
+    { id: 8, name: 'Guy Hawkins', service: 'Landscaping', rating: 4.8, location: 'Staten Island, NY', img: 'https://placehold.co/100x100/84cc16/ffffff?text=GH', projects: 65, banner: 'https://placehold.co/400x200/1e293b/ffffff?text=Garden+Design' },
 ];
 
 const mockCategories = [
@@ -22,13 +25,50 @@ const mockCategories = [
     { name: 'Tech & Development', icon: <Code size={20}/> }
 ];
 
+const mockUser = {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    img: 'https://placehold.co/100x100/ffffff/333333?text=JD'
+};
+
 
 // --- MAIN DASHBOARD PAGE ---
-
 const DashboardPage = () => {
-    const [username, setUsername] = useState('Guest');
+    const [user ,setuser] = useState(null)
     const [activeCategory, setActiveCategory] = useState('Home Services');
     const [location, setLocation] = useState('');
+    const [providers, setProviders] = useState([]);
+   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isClient, setIsClient] = useState(false);
+
+    // const getCurrentUser = async () => {
+    //         setIsClient(true);
+    //         try {
+    //             const accessToken = localStorage.getItem('accessToken');
+    //             if (!accessToken) {
+    //                 console.log("No access token found, redirecting to login.");
+    //                 window.location.href = '/login';
+    //                 return;
+    //             }
+
+    //             const res = await axios.get("http://backend:8000/api/v1/getUser", {
+    //                 headers: { 'Authorization': `Bearer ${accessToken}` }
+    //             });
+
+    //             setuser(res.data.data);
+    //         } catch (error) {
+    //             console.log("Error fetching user, redirecting to login:", error.message);
+    //             window.location.href = '/login';
+    //         }
+    //     };
+
+    // useEffect(()=>{
+    // getCurrentUser();
+    //   },[])
+
+    useEffect(() => {
+        setProviders(mockProviders);
+    }, []);
 
     const handleUseMyLocation = () => {
         if (navigator.geolocation) {
@@ -43,7 +83,7 @@ const DashboardPage = () => {
 
     return (
         <div className="bg-gray-900 min-h-screen text-white font-sans">
-            <header className="bg-gray-800/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-700">
+            <header className="bg-gray-800/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-700">
                  <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                     <div className="text-2xl font-bold text-white">Skill<span className="text-indigo-400">Market</span></div>
                     <div className="hidden md:flex flex-grow max-w-2xl mx-8 bg-gray-700 rounded-lg shadow-inner">
@@ -60,7 +100,7 @@ const DashboardPage = () => {
                         <div className="border-l border-gray-600 h-6 self-center"></div>
                         <div className="relative flex-grow">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <LocateFixed className="h-5 w-5 text-gray-400" />
+                                <MapPin className="h-5 w-5 text-gray-400" />
                             </div>
                             <input
                                 type="text"
@@ -74,10 +114,10 @@ const DashboardPage = () => {
                             <Crosshair size={20}/>
                         </button>
                     </div>
-                    <div className="flex items-center space-x-4">
-                        <span className="hidden sm:block text-gray-300">Welcome, {username}!</span>
-                        <img src="https://placehold.co/40x40/ffffff/333333?text=U" alt="User" className="rounded-full border-2 border-indigo-500/50" />
-                    </div>
+                    <button onClick={() => setIsSidebarOpen(true)} className="flex items-center space-x-4 cursor-pointer group">
+                        <span className="hidden sm:block text-gray-300 group-hover:text-white transition-colors">Welcome, {mockUser.name}!</span>
+                        <img src={mockUser.img} alt="User" className="rounded-full h-10 w-10 border-2 border-indigo-500/50 group-hover:border-indigo-400 transition-colors" />
+                    </button>
                 </nav>
             </header>
             
@@ -102,12 +142,12 @@ const DashboardPage = () => {
                     <p className="text-gray-400 text-lg max-w-2xl mx-auto">Browse our curated list of top-rated experts ready to help you.</p>
                 </div>
 
-                <FeaturedCarousel />
+                <FeaturedCarousel providers={mockProviders} />
 
                 <div className="mt-20">
                     <h2 className="text-3xl font-bold mb-8">All Professionals</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {mockProviders.map(provider => (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {providers.map(provider => (
                            <ProviderCard key={provider.id} provider={provider} />
                         ))}
                     </div>
@@ -124,8 +164,10 @@ const DashboardPage = () => {
                     </div>
                 </div>
             </footer>
+            
+            <UserProfileSidebar user={mockUser} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         </div>
-        );
+    );
 };
 
 export default DashboardPage;
