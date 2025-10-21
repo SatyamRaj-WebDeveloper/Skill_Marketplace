@@ -25,7 +25,7 @@ const SignUpPage = () => {
     email : e.target[1].value,
     password : e.target[2].value
    }
-    const res = await axios.post("http://backend:8000/api/v1/register/user" , formData )
+    const res = await axios.post("http://localhost:8000/api/v1/register/user" , formData )
     console.log(res)
     }catch{
     console.log("Error frontend : User Registration")

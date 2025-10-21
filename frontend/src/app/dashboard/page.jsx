@@ -5,8 +5,8 @@ import UserProfileSidebar from '../components/UserProfileSidebar';
 import ProviderCard from '../components/ProviderCard';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import { Search, MapPin, Home, Paintbrush, HeartPulse, Code, Crosshair, } from 'lucide-react';
+import axios from 'axios'
 
-// --- MOCK DATA ---
 const mockProviders = [
     { id: 1, name: 'Eleanor Pena', service: 'Plumbing', rating: 4.9, location: 'New York, NY', img: 'https://placehold.co/100x100/6366f1/ffffff?text=EP', projects: 128, banner: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80' },
     { id: 2, name: 'Cody Fisher', service: 'Electrical', rating: 4.8, location: 'Brooklyn, NY', img: 'https://placehold.co/100x100/ec4899/ffffff?text=CF', projects: 94, banner: 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80' },
@@ -25,46 +25,51 @@ const mockCategories = [
     { name: 'Tech & Development', icon: <Code size={20}/> }
 ];
 
-const mockUser = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    img: 'https://placehold.co/100x100/ffffff/333333?text=JD'
-};
 
 
 // --- MAIN DASHBOARD PAGE ---
 const DashboardPage = () => {
-    const [user ,setuser] = useState(null)
+    const [user ,setuser] = useState({})
     const [activeCategory, setActiveCategory] = useState('Home Services');
     const [location, setLocation] = useState('');
     const [providers, setProviders] = useState([]);
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isClient, setIsClient] = useState(false);
 
-    // const getCurrentUser = async () => {
-    //         setIsClient(true);
-    //         try {
-    //             const accessToken = localStorage.getItem('accessToken');
-    //             if (!accessToken) {
-    //                 console.log("No access token found, redirecting to login.");
-    //                 window.location.href = '/login';
-    //                 return;
-    //             }
+    const getCurrentUser = async () => {
+            setIsClient(true);
+            try {
+                const accessToken = localStorage.getItem('accessToken');
+                console.log(accessToken);
+                if (!accessToken) {
+                    console.log("No access token found, redirecting to login.");
+                    window.location.href = '/login';
+                    return;
+                }
 
-    //             const res = await axios.get("http://backend:8000/api/v1/getUser", {
-    //                 headers: { 'Authorization': `Bearer ${accessToken}` }
-    //             });
+                const res = await axios.get("http://localhost:8000/api/v1/getUser", {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                console.log(res.data.data)
+                setuser(res.data.data);
+            } catch (error) {
+    console.error("--- DEBUG: FAILED TO GET USER ---");
+    console.error("Full error object:", error);
 
-    //             setuser(res.data.data);
-    //         } catch (error) {
-    //             console.log("Error fetching user, redirecting to login:", error.message);
-    //             window.location.href = '/login';
-    //         }
-    //     };
+    if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+    } else if (error.request) {
+        console.error("No response received:", error.request);
+    } else {
+        console.error("Axios setup error:", error.message);
+    }
+      } 
+        };
 
-    // useEffect(()=>{
-    // getCurrentUser();
-    //   },[])
+    useEffect(()=>{
+    getCurrentUser();
+      },[])
 
     useEffect(() => {
         setProviders(mockProviders);
@@ -115,8 +120,8 @@ const DashboardPage = () => {
                         </button>
                     </div>
                     <button onClick={() => setIsSidebarOpen(true)} className="flex items-center space-x-4 cursor-pointer group">
-                        <span className="hidden sm:block text-gray-300 group-hover:text-white transition-colors">Welcome, {mockUser.name}!</span>
-                        <img src={mockUser.img} alt="User" className="rounded-full h-10 w-10 border-2 border-indigo-500/50 group-hover:border-indigo-400 transition-colors" />
+                        <span className="hidden sm:block text-gray-300 group-hover:text-white transition-colors">Welcome, {user.username ? user.username : 'User'}!</span>
+                        <img src={"https://images.unsplash.com/photo-1695927621677-ec96e048dce2?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1935"} alt="User" className="rounded-full h-10 w-10 border-2 border-indigo-500/50 group-hover:border-indigo-400 transition-colors" />
                     </button>
                 </nav>
             </header>
@@ -165,7 +170,7 @@ const DashboardPage = () => {
                 </div>
             </footer>
             
-            <UserProfileSidebar user={mockUser} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <UserProfileSidebar user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         </div>
     );
 };

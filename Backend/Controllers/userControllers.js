@@ -292,8 +292,22 @@ const findOrCreateAConversation = async(req, res) =>{
     }
 }
 
-
-
+const logout = async(req,res)=>{
+    try {
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000  
+        }
+        return res.status(200)
+             .clearCookie("refreshToken", cookieOptions)
+             .json({message : "User Logged Out Successfully"})
+    } catch (error) {
+        console.log(error.message);
+        return res.status(400).json({message:"user Controller :: User Did Not logout" , data:error.message})
+    }
+}
 export {
     registerUser,
     loginUser,
@@ -307,4 +321,5 @@ export {
     createBooking,
     cancelBooking,
     findOrCreateAConversation,
+    logout,
 }

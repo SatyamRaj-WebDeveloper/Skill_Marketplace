@@ -8,13 +8,15 @@ import {
     resetPassword,
     providerRequest,
     createReview,
-    reviewForProvider
+    reviewForProvider,
+    logout
 } from '../Controllers/userControllers.js'
 
 const router = Router();
 
 router.route('/register/user').post(registerUser);
 router.route('/login/user').post(loginUser);
+router.route('/logout/user').post(verifyjwt, logout)
 router.route('/getUser').get(verifyjwt , getCurrentUser);
 router.route('/updateProfile').put(verifyjwt , updateProfile);
 router.route('/resetpassword').put(verifyjwt , resetPassword);
